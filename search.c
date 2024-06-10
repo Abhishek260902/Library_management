@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Function to search for a book using book_id
+
 void searchbookstatus() {
     FILE *fp;
     int category;
@@ -40,8 +40,8 @@ void searchbookstatus() {
 
     while (fscanf(fp, "%d,%[^,],%[^,],%d\n", &book.book_id, book.book_name, book.author_name, &book.price) != EOF) {
         if (search_id == book.book_id) {
-            printf("Book Information:\n\n");
-            printf("Book ID\tBook Name\tAuthor Name\tPrice\n");
+            printf("Book information:\n\n");
+            printf("Book ID\tBook name\tAuthor name\tPrice\n");
             printf("%d\t%s\t\t%s\t\t%d\n", book.book_id, book.book_name, book.author_name, book.price);
             found = 1;
             break;

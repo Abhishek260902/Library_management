@@ -12,5 +12,6 @@ void addbook();
 void displaybookinfo();
 void searchbookstatus();
 void issuebook();
+void deletebook();
 
 #endif

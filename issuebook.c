@@ -5,7 +5,7 @@
 void issuebook() {
     FILE *fp;
     int category;
-    int issue_id; // Variable to hold the book ID to issue
+    int issue_id; 
     Book book;
     int found = 0;
 

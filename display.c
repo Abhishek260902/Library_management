@@ -31,8 +31,8 @@ void displaybookinfo() {
         return;
     }
 
-    printf("Book Information:\n\n");
-    printf("Book ID\tBook Name\tAuthor Name\tPrice\n");
+    printf("Book information:\n\n");
+    printf("Book ID\tBook name\tAuthor name\tPrice\n");
     while (fscanf(fp, "%d,%[^,],%[^,],%d\n", &book.book_id, book.book_name,  book.author_name, & book.price) != EOF) {
         printf("%d\t%s\t\t%s\t\t%d\n", book.book_id, book.book_name, book.author_name, book.price);
     }

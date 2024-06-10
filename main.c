@@ -10,7 +10,8 @@ int main() {
         printf("2. Display book information\n");
         printf("3. Searching books status\n");
         printf("4. Issue a book\n");
-        printf("5. Exit\n\n");
+        printf("5. Delete a book\n");
+        printf("6. Exit\n\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
         printf("\n\n");
@@ -29,6 +30,9 @@ int main() {
                 issuebook();
                 break;
             case 5:
+                deletebook();
+                break;
+            case 6:
                 printf("The library is closed\n\n");
                 printf("Have a nice day\n");
                 break;

@@ -30,13 +30,13 @@ void addbook() {
         return;
     }
 
-    printf("Enter Book ID: ");
+    printf("Enter book ID: ");
     scanf("%d", &newbook.book_id);
-    printf("Enter Book Name: ");
+    printf("Enter book name: ");
     scanf("%s", newbook.book_name);
-    printf("Enter Author Name: ");
+    printf("Enter author name: ");
     scanf("%s", newbook.author_name);
-    printf("Enter Price: ");
+    printf("Enter price: ");
     scanf("%d", &newbook.price);
 
     fprintf(fp, "%d,%s,%s,%d\n",newbook.book_id,newbook.book_name,newbook.author_name,newbook.price);
