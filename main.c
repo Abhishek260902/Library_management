@@ -1,6 +1,11 @@
 #include "library.h"
 #include <stdio.h>
-
+#include <string.h>
+#include"issuebook.c"
+#include"delete.c"
+#include"addbook.c"
+#include"display.c"
+#include"search.c"
 int main() {
     int choice;
 
@@ -39,7 +44,7 @@ int main() {
             default:
                 printf("Invalid choice\n");
         }
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
