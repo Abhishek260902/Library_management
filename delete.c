@@ -1,21 +1,18 @@
-#include "library.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "library.h"
 
-// Function to delete a book
 void deletebook() {
-    FILE *fp, *temp;
+    FILE *fp, *temp_fp;
     int category;
-    int delete_id;
+    int book_id;
+    char book_id_str[20];
     Book book;
-    char category_str[10];
-    char delete_id_str[20];
     int found = 0;
-    int valid;
+    char category_str[10];
 
-    // Prompt for category and validate input
     while (1) {
         printf("Choose the category:\n\n");
         printf("1. Computer\n");
@@ -23,7 +20,6 @@ void deletebook() {
         printf("Choose a category: ");
         scanf("%s", category_str);
 
-        // Check if input is a digit and valid category
         if (strlen(category_str) == 1 && isdigit(category_str[0])) {
             category = atoi(category_str);
             if (category == 1 || category == 2) {
@@ -33,65 +29,58 @@ void deletebook() {
         printf("Invalid category. Please enter a valid number (1 or 2).\n");
     }
 
-    // Get Book ID and validate input
-    while (1) {
-        printf("Enter the Book ID to delete: ");
-        scanf("%s", delete_id_str);
-        valid = 1;
-        for (int i = 0; i < strlen(delete_id_str); i++) {
-            if (!isdigit(delete_id_str[i])) {
-                valid = 0;
-                printf("Invalid Book ID. Please enter a valid integer.\n");
-                break;
-            }
-        }
-        if (valid) {
-            delete_id = atoi(delete_id_str);
-            break;
-        }
-    }
-
-    printf("\n\n");
-
-    const char *filename;
     if (category == 1) {
-        filename = "computer_books.txt";
+        fp = fopen("computer_books.txt", "r");
+        temp_fp = fopen("temp_computer_books.txt", "w");
     } else {
-        filename = "electronics_books.txt";
+        fp = fopen("electronics_books.txt", "r");
+        temp_fp = fopen("temp_electronics_books.txt", "w");
     }
-
-    fp = fopen(filename, "r");
-    if (fp == NULL) {
-        printf("Error opening file %s\n", filename);
-        return;
-    }
-    temp = fopen("temp.txt", "w");
-    if (temp == NULL) {
-        printf("Error opening temporary file\n");
-        fclose(fp);
+    if (fp == NULL || temp_fp == NULL) {
+        printf("Error opening file\n");
+        if (fp != NULL) fclose(fp);
+        if (temp_fp != NULL) fclose(temp_fp);
         return;
     }
 
-    while (fscanf(fp, "%d,%[^,],%[^,],%f\n", &book.book_id, book.book_name, book.author_name, &book.price) != EOF) {
-        if (delete_id == book.book_id) {
-            found = 1;
-            printf("Book with ID %d deleted successfully.\n", delete_id);
+    while (1) {
+        printf("Enter Book ID to delete: ");
+        scanf("%s", book_id_str);
+
+        if (strlen(book_id_str) > 0 && isdigit(book_id_str[0])) {
+            book_id = atoi(book_id_str);
+            break;
         } else {
-            fprintf(temp, "%d,%s,%s,%.2f\n", book.book_id, book.book_name, book.author_name, book.price);
+            printf("Invalid input. Please enter a valid integer Book ID.\n");
         }
+    }
+
+    while (fscanf(fp, "%d,%49[^,],%49[^,],%f,%49[^\n]\n", &book.book_id, book.book_name, book.author_name, &book.price, book.borrower_name) != EOF) {
+        if (book.book_id == book_id) {
+            printf("Book deleted successfully:\n");
+            printf("Book ID: %d\n", book.book_id);
+            printf("Book name: %s\n", book.book_name);
+            printf("Author name: %s\n", book.author_name);
+            printf("Price: %.2f\n", book.price);
+            printf("Borrower name: %s\n", book.borrower_name[0] ? book.borrower_name : "Not issued");
+            found = 1;
+        } else {
+            fprintf(temp_fp, "%d,%s,%s,%f,%s\n", book.book_id, book.book_name, book.author_name, book.price, book.borrower_name);
+        }
+    }
+
+    if (!found) {
+        printf("Book not found.\n");
     }
 
     fclose(fp);
-    fclose(temp);
+    fclose(temp_fp);
 
-    if (found) {
-        if (remove(filename) != 0) {
-            printf("Error deleting the original file %s\n", filename);
-        } else if (rename("temp.txt", filename) != 0) {
-            printf("Error renaming temporary file\n");
-        }
+    if (category == 1) {
+        remove("computer_books.txt");
+        rename("temp_computer_books.txt", "computer_books.txt");
     } else {
-        printf("Book not found\n");
-        remove("temp.txt");
+        remove("electronics_books.txt");
+        rename("temp_electronics_books.txt", "electronics_books.txt");
     }
 }

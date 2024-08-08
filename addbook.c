@@ -1,16 +1,24 @@
-#include "library.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
+#include <ctype.h>
+#include "library.h"
 
 void addbook() {
     FILE *fp;
     int category;
     Book newbook;
-    char book_id_str[20], book_name[50], author_name[50], price_str[20];
-    char category_str[10];
+    char *book_id_str = malloc(20 * sizeof(char));
+    char *book_name = malloc(50 * sizeof(char));
+    char *author_name = malloc(50 * sizeof(char));
+    char *price_str = malloc(20 * sizeof(char));
+    char *category_str = malloc(10 * sizeof(char));
     int valid;
+
+    if (book_id_str == NULL || book_name == NULL || author_name == NULL || price_str == NULL || category_str == NULL) {
+        printf("Memory allocation failed\n");
+        return;
+    }
 
     while (1) {
         printf("Choose the category:\n\n");
@@ -26,7 +34,6 @@ void addbook() {
             }
         }
         printf("Invalid category. Please enter a valid number (1 or 2).\n");
-     
     }
 
     if (category == 1) {
@@ -36,6 +43,11 @@ void addbook() {
     }
     if (fp == NULL) {
         printf("Error opening file\n");
+        free(book_id_str);
+        free(book_name);
+        free(author_name);
+        free(price_str);
+        free(category_str);
         return;
     }
 
@@ -111,12 +123,20 @@ void addbook() {
         }
     }
 
+    // Reset file pointer to beginning
+    rewind(fp);
+
     // Check for duplicate book ID
     Book temp;
-    while (fscanf(fp, "%d,%[^,],%[^,],%f\n", &temp.book_id, temp.book_name, temp.author_name, &temp.price) != EOF) {
+    while (fscanf(fp, "%d,%49[^,],%49[^,],%f\n", &temp.book_id, temp.book_name, temp.author_name, &temp.price) != EOF) {
         if (temp.book_id == newbook.book_id) {
             printf("Book ID already exists. Please try again.\n");
             fclose(fp);
+            free(book_id_str);
+            free(book_name);
+            free(author_name);
+            free(price_str);
+            free(category_str);
             return;
         }
     }
@@ -125,4 +145,10 @@ void addbook() {
     fprintf(fp, "%d,%s,%s,%f\n", newbook.book_id, newbook.book_name, newbook.author_name, newbook.price);
     fclose(fp);
     printf("Book added successfully!\n");
+
+    free(book_id_str);
+    free(book_name);
+    free(author_name);
+    free(price_str);
+    free(category_str);
 }

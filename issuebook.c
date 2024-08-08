@@ -1,21 +1,28 @@
-#include "library.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "library.h"
 
-// Function to issue a book
+int isValidName(const char *name) {
+    for (int i = 0; i < strlen(name); i++) {
+        if (!isalpha(name[i]) && name[i] != ' ') {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 void issuebook() {
-    FILE *fp;
+    FILE *fp, *temp_fp;
     int category;
-    int issue_id;
+    int book_id;
+    char book_id_str[20];
     Book book;
     int found = 0;
     char category_str[10];
-    char issue_id_str[20];
-    int valid;
+    char borrower_name[MAX_NAME_LENGTH];
 
-    // Prompt for category and validate input
     while (1) {
         printf("Choose the category:\n\n");
         printf("1. Computer\n");
@@ -23,7 +30,6 @@ void issuebook() {
         printf("Choose a category: ");
         scanf("%s", category_str);
 
-        // Check if input is a digit and valid category
         if (strlen(category_str) == 1 && isdigit(category_str[0])) {
             category = atoi(category_str);
             if (category == 1 || category == 2) {
@@ -33,47 +39,71 @@ void issuebook() {
         printf("Invalid category. Please enter a valid number (1 or 2).\n");
     }
 
-    // Open appropriate file based on category
     if (category == 1) {
-        fp = fopen("computer_books.txt", "r+");
+        fp = fopen("computer_books.txt", "r");
+        temp_fp = fopen("temp_computer_books.txt", "w");
     } else {
-        fp = fopen("electronics_books.txt", "r+");
+        fp = fopen("electronics_books.txt", "r");
+        temp_fp = fopen("temp_electronics_books.txt", "w");
     }
-    if (fp == NULL) {
+    if (fp == NULL || temp_fp == NULL) {
         printf("Error opening file\n");
+        if (fp != NULL) fclose(fp);
+        if (temp_fp != NULL) fclose(temp_fp);
         return;
     }
 
-    // Get Book ID and validate input
     while (1) {
-        printf("Enter Book ID: ");
-        scanf("%s", issue_id_str);
-        valid = 1;
-        for (int i = 0; i < strlen(issue_id_str); i++) {
-            if (!isdigit(issue_id_str[i])) {
-                valid = 0;
-                printf("Invalid Book ID. Please enter a valid integer.\n");
-                break;
-            }
-        }
-        if (valid) {
-            issue_id = atoi(issue_id_str);
+        printf("Enter Book ID to issue: ");
+        scanf("%s", book_id_str);
+
+        if (strlen(book_id_str) > 0 && isdigit(book_id_str[0])) {
+            book_id = atoi(book_id_str);
             break;
+        } else {
+            printf("Invalid input. Please enter a valid integer Book ID.\n");
         }
     }
 
-    // Search for the book by its ID
-    while (fscanf(fp, "%d,%[^,],%[^,],%f\n", &book.book_id, book.book_name, book.author_name, &book.price) != EOF) {
-        if (issue_id == book.book_id) {
+    while (fscanf(fp, "%d,%49[^,],%49[^,],%f,%49[^\n]\n", &book.book_id, book.book_name, book.author_name, &book.price, book.borrower_name) != EOF) {
+        if (book.book_id == book_id) {
+            printf("Book found:\n");
+            printf("Book ID: %d\n", book.book_id);
+            printf("Book name: %s\n", book.book_name);
+            printf("Author name: %s\n", book.author_name);
+            printf("Price: %.2f\n", book.price);
+
+            while (1) {
+                printf("Enter Borrower Name: ");
+                scanf(" %[^\n]", borrower_name);  // Note: This format string allows spaces in the input
+                if (isValidName(borrower_name)) {
+                    break;
+                } else {
+                    printf("Invalid name. Please enter a valid name without digits or symbols.\n");
+                }
+            }
+            strcpy(book.borrower_name, borrower_name);
+
+            fprintf(temp_fp, "%d,%s,%s,%f,%s\n", book.book_id, book.book_name, book.author_name, book.price, book.borrower_name);
+            printf("Book issued to %s successfully!\n", book.borrower_name);
             found = 1;
-            printf("%s is issued successfully.\n", book.book_name);
-            break;
+        } else {
+            fprintf(temp_fp, "%d,%s,%s,%f,%s\n", book.book_id, book.book_name, book.author_name, book.price, book.borrower_name);
         }
+    }
+
+    if (!found) {
+        printf("Book not found.\n");
     }
 
     fclose(fp);
+    fclose(temp_fp);
 
-    if (!found) {
-        printf("Book not found\n");
+    if (category == 1) {
+        remove("computer_books.txt");
+        rename("temp_computer_books.txt", "computer_books.txt");
+    } else {
+        remove("electronics_books.txt");
+        rename("temp_electronics_books.txt", "electronics_books.txt");
     }
 }
